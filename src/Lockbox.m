@@ -22,7 +22,7 @@ static NSString *_bundleId = nil;
 +(NSMutableDictionary *)_service
 {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-    
+
     [dict setObject: (id) kSecClassGenericPassword  forKey: (id) kSecClass];
 
     return dict;
@@ -31,7 +31,7 @@ static NSString *_bundleId = nil;
 +(NSMutableDictionary *)_query
 {
     NSMutableDictionary* query = [NSMutableDictionary dictionary];
-    
+
     [query setObject: (id) kSecClassGenericPassword forKey: (id) kSecClass];
     [query setObject: (id) kCFBooleanTrue           forKey: (id) kSecReturnData];
 
@@ -48,7 +48,7 @@ static NSString *_bundleId = nil;
 +(BOOL)setObject:(NSString *)obj forKey:(NSString *)key
 {
     OSStatus status;
-    
+
     NSString *hierKey = [self _hierarchicalKey:key];
 
     // If the object is nil, delete the item
@@ -58,22 +58,22 @@ static NSString *_bundleId = nil;
         status = SecItemDelete((CFDictionaryRef)query);
         return (status == errSecSuccess);
     }
-    
+
     NSMutableDictionary *dict = [self _service];
     [dict setObject: hierKey forKey: (id) kSecAttrService];
     [dict setObject: [obj dataUsingEncoding:NSUTF8StringEncoding] forKey: (id) kSecValueData];
-    
+
     status = SecItemAdd ((CFDictionaryRef) dict, NULL);
     if (status == errSecDuplicateItem) {
         NSMutableDictionary *query = [self _query];
         [query setObject:hierKey forKey:(id)kSecAttrService];
         status = SecItemDelete((CFDictionaryRef)query);
         if (status == errSecSuccess)
-            status = SecItemAdd((CFDictionaryRef) dict, NULL);        
+            status = SecItemAdd((CFDictionaryRef) dict, NULL);
     }
     if (status != errSecSuccess)
         NSLog(@"SecItemAdd failed for key %@: %ld", hierKey, status);
-    
+
     return (status == errSecSuccess);
 }
 
@@ -89,17 +89,17 @@ static NSString *_bundleId = nil;
         SecItemCopyMatching ( (CFDictionaryRef) query, (CFTypeRef*) &data );
     if (status != errSecSuccess)
         NSLog(@"SecItemCopyMatching failed for key %@: %ld", hierKey, status);
-    
+
     if (!data)
         return nil;
 
-    NSString *s = [[[NSString alloc] 
-                    initWithData: data 
+    NSString *s = [[[NSString alloc]
+                    initWithData: data
                     encoding: NSUTF8StringEncoding] autorelease];
 
     [data autorelease];
-    
-    return s;    
+
+    return s;
 }
 
 +(BOOL)setString:(NSString *)value forKey:(NSString *)key
@@ -124,7 +124,7 @@ static NSString *_bundleId = nil;
     NSString *components = [self objectForKey:key];
     if (components)
         array = [NSArray arrayWithArray:[components componentsSeparatedByString:kDelimeter]];
-    
+
     return array;
 }
 
@@ -139,7 +139,7 @@ static NSString *_bundleId = nil;
     NSArray *array = [self arrayForKey:key];
     if (array)
         set = [NSSet setWithArray:array];
-    
+
     return set;
 }
 
